@@ -20,14 +20,14 @@ export async function init() {
 
     document.getElementById("webcam-container").appendChild(webcam.canvas);
     labelContainer = document.getElementById("label-container");
-    for (let i = 0; i < maxPredictions; i++) { // and class labels
-        labelContainer.appendChild(document.createElement("div"));
-    }
+    // for (let i = 0; i < maxPredictions; i++) { // and class labels
+    //     labelContainer.appendChild(document.createElement("div"));
+    // }
 }
 
 async function loop() {
     webcam.update(); // update the webcam frame
-    await predict2();
+    await predict();
     window.requestAnimationFrame(loop);
 }
 
@@ -35,30 +35,18 @@ export async function predict() {
         // predict can take in an image, video or canvas html element
         const prediction = await model.predict(webcam.canvas);
         for (let i = 0; i < maxPredictions; i++) {
-                    if(prediction[i].probability.toFixed(2) > 0.75){
+            const jacob = prediction[0];
+            const bakeneko = prediction[1]
+            let classPrediction = "Unknown"; 
 
-            const classPrediction =
-                prediction[i].className;
+            if(jacob.probability.toFixed(2) > 0.75){
+                classPrediction = `Jacob - ${jacob.probability.toFixed(2)}`;
+            }else if(bakeneko.probability.toFixed(2) > 0.75){
+                classPrediction = `Bakeneko - ${bakeneko.probability.toFixed(2)}`;
+            }
                 
-            labelContainer.childNodes[i].innerHTML = classPrediction;
+            labelContainer.innerHTML = `${classPrediction}` ;
+            
                     }
         }
-}
-
-export async function predict2() {
-    let value = "unknown"
-    // predict can take in an image, video or canvas html element
-    if(webcam.canvas){
-    const prediction = await model.predict(webcam.canvas);
-    for (let i = 0; i < maxPredictions; i++) {
-        if(prediction[i].probability.toFixed(2) > 0.75){
-            // console.log("prediction", prediction[i].className, " : ", prediction[i].probability.toFixed(2)); 
-                value = prediction[i].className 
-        }
-    }
-    }
-
-    return value;
-
-}
 
